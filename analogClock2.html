@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Analog Clock with Hour Chime</title>
+<style>
+  body { 
+    background: #ececec; 
+    display:flex; 
+    flex-direction: column; 
+    justify-content:center; 
+    align-items:center; 
+    height:100vh; 
+    font-family: 'Poiret One', sans-serif; 
+  }
+
+ .info-header { 
+    text-align: center; 
+    font-size: 14px; 
+    margin-top: -120px; /* margin negatif untuk naik */
+    margin-bottom: 2px;
+    color: #333; 
+}
+
+
+  .clock { 
+    width:300px; 
+    height:300px; 
+    border-radius:50%; 
+    border:14px solid #333; 
+    background:#ececec; 
+    position:relative; 
+    box-shadow:0 2vw 4vw -1vw rgba(0,0,0,0.8); 
+    margin-bottom: 20px; 
+  }
+
+  .dot { 
+    width:14px; height:14px; border-radius:50%; background:#ccc; 
+    position:absolute; top:0; left:0; right:0; bottom:0; margin:auto; 
+    z-index:10; box-shadow:0 2px 4px -1px black; 
+  }
+
+  .hour-hand, .minute-hand, .second-hand { 
+    position:absolute; border-top-left-radius:50%; border-top-right-radius:50%; 
+    left:50%; margin-left:0; 
+  }
+  .hour-hand { width:4px; height:65px; background:#333; top:79px; transform-origin:50% 72px; margin-left:-2px; z-index:5; }
+  .minute-hand { width:4px; height:100px; background:#666; top:46px; transform-origin:50% 105px; margin-left:-2px; z-index:6; }
+  .second-hand { width:2px; height:120px; background:gold; top:26px; transform-origin:50% 125px; margin-left:-1px; z-index:7; }
+
+  span { display:inline-block; position:absolute; color:#333; font-size:22px; font-weight:700; z-index:4;}
+  .h12{top:30px; left:50%; margin-left:-9px;} 
+  .h3{top:140px; right:30px;} 
+  .h6{bottom:30px; left:50%; margin-left:-5px;} 
+  .h9{left:32px; top:140px;}
+  
+  .diallines { position:absolute; z-index:2; width:2px; height:15px; background:#666; left:50%; margin-left:-1px; transform-origin:50% 150px;}
+  .diallines:nth-of-type(5n){width:4px;height:25px;}
+
+  .info {position:absolute;width:120px;height:20px;border-radius:7px;background:#ccc;text-align:center;line-height:20px;color:#000;font-size:11px;font-weight:700;letter-spacing:3px;left:50%; margin-left:-60px; z-index:3;}
+  .date{top:80px;} 
+  .day{top:200px;}
+
+ button { 
+    padding: 10px 20px; 
+    font-size: 14px; 
+    cursor: pointer; 
+    border-radius: 6px; 
+    border: none; 
+    background-color: #333; 
+    color: white; 
+    margin-top: 25px; /* tambahkan jarak ke atas */
+}
+
+
+</style>
+</head>
+<body>
+
+<div class="info-header">
+  <p> Analog Clock Origin by: codepen.io </p> 
+   <p> Chime Melody, Melody and Coding by: Rahadian, Januari 2026. </p>
+<br/>
+</div>
+
+<div class="clock">
+  <div>
+    <div class="info date"></div>
+    <div class="info day"></div>
+  </div>
+  <div class="dot"></div>
+  <div>
+    <div class="hour-hand"></div>
+    <div class="minute-hand"></div>
+    <div class="second-hand"></div>
+  </div>
+  <div>
+    <span class="h3">3</span>
+    <span class="h6">6</span>
+    <span class="h9">9</span>
+    <span class="h12">12</span>
+  </div>
+</div>
+
+<button id="activateChime">Aktifkan Suara & Preview Melody</button>
+
+<script>
+const clockEl = document.querySelector('.clock');
+const chime = new Audio('fullhourca.wav'); // pastikan file audio di folder sama
+chime.preload = "auto";
+
+let lastHourPlayed = null;
+let audioAktif = false;
+
+// buat 60 diallines
+for(let i=0;i<60;i++){
+  const line = document.createElement('div');
+  line.className = 'diallines';
+  line.style.transform = `rotate(${i*6}deg)`;
+  clockEl.appendChild(line);
+}
+
+// tombol preview + aktivasi chime
+const btn = document.getElementById('activateChime');
+btn.addEventListener('click', ()=>{
+  chime.currentTime = 0;
+  chime.play().catch(err=>{
+    console.error("Audio gagal diputar:", err);
+    alert("Gagal memainkan audio. Pastikan file 'fullhourca.wav' ada dan bisa diakses.");
+  });
+  
+  audioAktif = true;
+  lastHourPlayed = null;
+  
+  // ganti teks tombol setelah aktivasi
+  btn.innerText = "Melody Hour Chimes Aktif";
+  btn.disabled = true; // optional: mencegah klik lagi
+});
+
+function clock(){
+  const d = new Date();
+  let h = d.getHours();
+  let m = d.getMinutes();
+  let s = d.getSeconds();
+  let date = d.getDate();
+  let month = d.getMonth() + 1;
+  const year = d.getFullYear();
+  const weekday = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+  const day = weekday[d.getDay()];
+
+  if(month<10) month="0"+month;
+
+  // jarum
+  document.querySelector('.hour-hand').style.transform = `rotate(${h*30 + m*(360/720)}deg)`;
+  document.querySelector('.minute-hand').style.transform = `rotate(${m*6 + s*(360/3600)}deg)`;
+  document.querySelector('.second-hand').style.transform = `rotate(${s*6}deg)`;
+
+  // tanggal & hari
+  document.querySelector('.date').innerHTML = `${date}/${month}/${year}`;
+  document.querySelector('.day').innerHTML = day;
+
+  // chime tiap jam
+  if(audioAktif && m===0 && s===0 && lastHourPlayed!==h){
+    chime.currentTime = 0;
+    chime.play().catch(()=>{});
+    lastHourPlayed = h;
+  }
+}
+
+setInterval(clock,1000);
+clock();
+</script>
+
+</body>
+</html>
