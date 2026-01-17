@@ -1,3 +1,3 @@
-Cara Menggunakan
-Copy file html dan wav ke folder yang sama
-BUka html melalui browser
+Cara Menggunakan: 
+Copy file analogClock.html dan fullhourca.wav ke folder yang sama
+BUka analogClock.html melalui browser
